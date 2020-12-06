@@ -4,10 +4,15 @@ const {MONGOURI} = require('./keys')
 const app = express()
 const PORT = 5000
 
+const cors = require('cors')
+
 require('./models/user')
 require('./models/post')
 
 app.use(express.json())
+app.use(cors({
+    origin: "http://localhost:3000"
+}))
 
 app.use(require('./routes/auth'))
 app.use(require('./routes/posts'))
