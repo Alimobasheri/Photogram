@@ -1,5 +1,7 @@
 # Photogram
 An instagram clone. Uses Express.js, Next.js, React.js, React Material-UI.
+Online deployment link: https://photogram-client.vercel.app/
+Note: The server-side hasn't been deployed online yet. So the client deployment on Vercel isn't fully functional.
 
 In progress...
 This project is a sample web app created by me to demonstrate my skills. It is made of two main folders. One is for the server which is entirely written with Express.js.
