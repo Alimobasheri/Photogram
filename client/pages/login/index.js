@@ -1,3 +1,7 @@
+import {useState} from 'react'
+
+import {Router, useRouter} from 'next/router'
+
 import {
     Box,
     Card,
@@ -10,7 +14,8 @@ import {
     InputAdornment,
     CardActions,
     IconButton,
-    Button
+    Button,
+    Snackbar,
 } from '@material-ui/core'
 import {fade} from '@material-ui/core/styles/colorManipulator'
 import AccountCircleIcon from '@material-ui/icons/AccountCircle'
@@ -18,6 +23,7 @@ import EmailIcon from '@material-ui/icons/Email'
 import LockIcon from '@material-ui/icons/Lock'
 import ExitToAppIcon from '@material-ui/icons/ExitToApp'
 import FaceIcon from '@material-ui/icons/Face'
+import CloseIcon from '@material-ui/icons/Close'
 import Link from 'next/link'
 import Head from 'next/head'
 
@@ -65,11 +71,78 @@ const useLoginStyles = makeStyles(theme => ({
             flexDirection: 'column',
             justifyContent: 'center',
         }
+    },
+    "snackbar--error": {
+        '& .MuiPaper-root': {
+            backgroundColor: theme.palette.error.dark,
+            color: theme.palette.error.contrastText,
+            '& .MuiSvgIcon-root': {
+                color: theme.palette.error.contrastText
+            }
+        }
+    },
+    "snackbar--success": {
+        "& .MuiPaper-root": {
+            backgroundColor: theme.palette.success.main,
+            color: theme.palette.success.contrastText,
+            '& .MuiSvgIcon-root': {
+                color: theme.palette.success.contrastText
+            }
+        }
     }
 }))
 
 export default function Login() {
     const classes = useLoginStyles()
+
+    const router = useRouter()
+
+    const [email, setEmail] = useState("")
+    const [password, setPassword] = useState("")
+
+    const [snackbar, setSnackbar] = useState({open: false, type:"default", message:""})
+
+    const PostData = () => {
+        if (email === "" || password === ""){
+            return
+        }
+        fetch("http://localhost:5000/signin", {
+            method: "post",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                email,
+                password
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.error) {
+                if(data.error == "Invalid email or password") {
+                    setSnackbar({
+                        open: true,
+                        type: "error",
+                        message: "نشانی رایانامه و یا رمز عبور وارد شده درست نمی باشد."
+                    })
+                }
+            } else {
+                setSnackbar({
+                    open: true,
+                    type: "success",
+                    message: `${data.user.name} به فوتوگرام خوش آمدید.`
+                })
+                setTimeout(() => router.push("/"), 5000)
+            }
+        })
+        .catch(error => {
+            setSnackbar({
+                open: true,
+                type: "error",
+                message: "خطا در ارتباط با سرور"
+            })
+        })
+    }
     return (
         <Box
         dir="rtl"
@@ -101,6 +174,8 @@ export default function Login() {
                             name="email"
                             id="email"
                             type="email"
+                            value={email}
+                            onChange={event => setEmail(event.target.value)}
                             required
                             fullWidth
                             placeholder="jaffar@example.com"
@@ -122,6 +197,8 @@ export default function Login() {
                             name="password"
                             id="password"
                             type="password"
+                            value={password}
+                            onChange={event => setPassword(event.target.value)}
                             required
                             fullWidth
                             placeholder="******"
@@ -147,11 +224,24 @@ export default function Login() {
                     <Button
                     variant="outlined"
                     color="primary"
+                    onClick={e => PostData()}
                     startIcon={<ExitToAppIcon />}>
                         ورود
                     </Button>
                 </CardActions>
             </Card>
+            <Snackbar
+            message={snackbar.message}
+            action={
+                <IconButton onClick={() => setSnackbar({...snackbar, open: false})}>
+                    <CloseIcon />
+                </IconButton>
+            }
+            open={snackbar.open}
+            onClose={() => setSnackbar({...snackbar, open: false})}
+            anchorOrigin={{vertical: "top", horizontal: "center"}}
+            className={classes[`snackbar--${snackbar.type}`]}>
+            </Snackbar>
         </Box>
     )
 }
