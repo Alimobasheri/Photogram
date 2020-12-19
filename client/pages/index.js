@@ -15,7 +15,7 @@ const feedPosts = [
       user_name: "jaffar_hashemi"
     },
     location: "تهرانپارس، تهران",
-    text: "یه روز خوب! #kos",
+    text: "یه روز خوب!",
     likesCount: 45
   },
   {
