@@ -69,11 +69,20 @@ router.post('/signin', (req, res) => {
                     } else {
                         //res.json({message: 'Successfully signed in.'})
                         const token = jwt.sign({_id: savedUser._id}, JWT_SECRET)
-                        res.json({token})
+                        const {_id, name, email} = savedUser
+                        res.json({
+                            token, 
+                            user: {
+                                _id,
+                                name,
+                                email
+                            }
+                        })
                     }
                 })
                 .catch(err => {
                     console.log(err)
+                    res.status(500).json({error: err})
                 })
         })
 })
